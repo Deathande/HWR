@@ -52,18 +52,30 @@ def rate(nn, datas):
 		averages.append(average(abs(y - out)))
 	return average(averages)
 
-def genetic():
+def genetic(threads=0):
 	inputs = 64
 	outputs = 10
 	nets = list()
+	training = getData('rec/optdigits_train.txt', True)
+	testing = getData('rec/optdigits_test.txt', True)
+	for i in range(10):
+		alpha = np.random.rand()
+		nhl = np.random.randint(0,5)
+		iteration = np.random.randint(3, 100)
+		hl = list()
+		for j in range(nhl):
+			hl.append(np.random.randint(1, 85))
+		nets.append((NeuralNet.NeuralNet(inputs, outputs, hl), alpha, iteration))
+	
 
 if __name__ == '__main__':
-	training = getData('optdigits_train.txt', True)
+	genetic()
+	"""
+	training = getData('rec/optdigits_train.txt', True)
 	n = NeuralNet.NeuralNet(64, 10)
 	n.train(training, .01, 10)
-	test = getData('optdigits_test.txt', True)
+	test = getData('rec/optdigits_test.txt', True)
 	print(rate(n, test))
-	"""
 	for data, y in test:
 		out = n.run(data)
 		for i in range(len(out)):
