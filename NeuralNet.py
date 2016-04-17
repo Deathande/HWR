@@ -3,12 +3,12 @@ import numpy
 
 class NeuralNet:
 	def __init__(self,inl, ol, netSpec=[]):
+		numpy.random.seed(1)
 		self.layers = list()
 		netSpec.append(ol)
 		netSpec.insert(0, inl)
 		for i in range(1, len(netSpec)):
 			self.layers.append(numpy.random.rand(netSpec[i-1], netSpec[i]) * .1)
-			print(self.layers[-1].shape)
 			
 	def sigmoid(x):
 		return 1 / (1 + numpy.e ** -x) # This does not work...

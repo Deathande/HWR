@@ -3,6 +3,7 @@ import numpy as np
 import random
 import NeuralNet
 import sys
+import pdb
 
 def vectorize(x):
 	vect = np.zeros(10)
@@ -37,16 +38,32 @@ def getHighest(data):
 			index = i
 	return index
 
-def percentDiff(exp, theory):
-	return abs(theory - exp) / theory 
+def average(val):
+	avg = 0
+	#pdb.set_trace()
+	for i in val:
+		avg += i
+	return avg / len(val)
+
+def rate(nn, datas):
+	averages = list()
+	for data, y in datas:
+		out = nn.run(data)
+		averages.append(average(abs(y - out)))
+	return average(averages)
+
+def genetic():
+	inputs = 64
+	outputs = 10
+	nets = list()
 
 if __name__ == '__main__':
 	training = getData('optdigits_train.txt', True)
-	structure = [len(training[0][0]), 10]
-	#structure = [len(training[0][0]), len(training[0][0]) - 4, 10]
 	n = NeuralNet.NeuralNet(64, 10)
-	n.train(training, .01, 50)
+	n.train(training, .01, 10)
 	test = getData('optdigits_test.txt', True)
+	print(rate(n, test))
+	"""
 	for data, y in test:
 		out = n.run(data)
 		for i in range(len(out)):
@@ -55,4 +72,6 @@ if __name__ == '__main__':
 			print()
 		print("found:" + str(getHighest(out)))
 		print("actual: " + str(getHighest(y)))
-		print()
+		print("Average difference: " + str(average(abs(y - out))))
+		rint()
+	"""
