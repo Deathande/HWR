@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import random
 import NeuralNet
+import sys
 
 def vectorize(x):
 	vect = np.zeros(10)
@@ -36,13 +37,22 @@ def getHighest(data):
 			index = i
 	return index
 
+def percentDiff(exp, theory):
+	return abs(theory - exp) / theory 
+
 if __name__ == '__main__':
 	training = getData('optdigits_train.txt', True)
 	structure = [len(training[0][0]), 10]
 	#structure = [len(training[0][0]), len(training[0][0]) - 4, 10]
-	n = NeuralNet.NeuralNet(structure)
-	n.train(training, .01, 20)
+	n = NeuralNet.NeuralNet(64, 10)
+	n.train(training, .01, 50)
 	test = getData('optdigits_test.txt', True)
 	for data, y in test:
 		out = n.run(data)
-		print(str(getHighest(out)) + ": " + str(getHighest(y)))
+		for i in range(len(out)):
+			sys.stdout.write(str(i) + ": ")
+			sys.stdout.write(str(out[i]))
+			print()
+		print("found:" + str(getHighest(out)))
+		print("actual: " + str(getHighest(y)))
+		print()
