@@ -38,9 +38,10 @@ def getHighest(data):
 
 if __name__ == '__main__':
 	training = getData('optdigits_train.txt', True)
-	structure = [len(training[0][0]), len(training[0][0]) - 4, 10]
+	structure = [len(training[0][0]), 10]
+	#structure = [len(training[0][0]), len(training[0][0]) - 4, 10]
 	n = NeuralNet.NeuralNet(structure)
-	n.train(training, .1)
+	n.train(training, .01, 20)
 	test = getData('optdigits_test.txt', True)
 	for data, y in test:
 		out = n.run(data)
