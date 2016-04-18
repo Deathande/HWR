@@ -1,9 +1,11 @@
 import csv
 import numpy as np
+import GeneticAlg
 import random
 import NeuralNet
 import sys
 import pdb
+import BubbleSort
 
 def vectorize(x):
 	vect = np.zeros(10)
@@ -52,10 +54,46 @@ def rate(nn, datas):
 		averages.append(average(abs(y - out)))
 	return average(averages)
 
-def genetic(threads=0):
+def cross(l1, l2):
+	if len(l1) == len(l2):
+		pivot = np.random.randint(0, len(l1))
+		ltemp1 = l1[pivot:]
+		ltemp2 = l2[pivot:]
+		l1 = l1[0:pivot]
+		l2 = l2[0:pivot]
+		l1.extend(ltemp2)
+		l2.extend(ltemp1)
+	return [l1, l2]
+
+def mutate(l, num):
+	new = list()
+	for i in range(num):
+		index = np.randomint(0, len(l))
+		member = l[index]
+		index = np.random.randint(0, len(l))
+		val = 0
+	return new
+
+def mix(l, x=0):
+	newlist  = list()
+	olength = len(l)
+	hl = list()
+	for val in l:
+		hl.append(val[2])
+	if (x == 0):
+		mix(hl, 1)
+	for i in range(floor(len(l) / 2)):
+		index = np.random.randint(0, len(l))
+		l1 = l.pop(index)
+		index = np.random.randint(0, len(l))
+		l2 = l.pop(index)
+		newlist.extend(corss(l1, l2))
+
+def genetic(it, threads=0):
 	inputs = 64
 	outputs = 10
 	nets = list()
+	params = list()
 	training = getData('rec/optdigits_train.txt', True)
 	testing = getData('rec/optdigits_test.txt', True)
 	for i in range(10):
@@ -65,11 +103,26 @@ def genetic(threads=0):
 		hl = list()
 		for j in range(nhl):
 			hl.append(np.random.randint(1, 85))
-		nets.append((NeuralNet.NeuralNet(inputs, outputs, hl), alpha, iteration))
+		params.append((alpha, iteration, hl, nhl))
 	
-
+	"""
+	for n in range(it):
+		errors = list()
+		nets = list()
+		for a, it, hl in params:
+			nets.append(NeuralNet.NeuralNet(inputs, outputs, hl))
+		for i in range(len(nets)):
+			nets[i].train(training, params[i][0], params[i][1])
+		for i in range(nets):
+			errors.append(rate(nets[i], testing))
+		BubbleSort.sort(errors)
+	"""
+		
+			
 if __name__ == '__main__':
-	genetic()
+	training = getData('rec/optdigits_train.txt', True)
+	testing = getData('rec/optdigits_test.txt', True)
+	GeneticAlg.run(training, testing, 10, 10)
 	"""
 	training = getData('rec/optdigits_train.txt', True)
 	n = NeuralNet.NeuralNet(64, 10)
