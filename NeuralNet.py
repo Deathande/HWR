@@ -3,13 +3,14 @@ import numpy
 
 class NeuralNet:
 	def __init__(self,inl, ol, netSpec=[]):
+		self.runQuality = list()
 		numpy.random.seed(1)
 		self.layers = list()
 		netSpec.append(ol)
 		netSpec.insert(0, inl)
 		for i in range(1, len(netSpec)):
 			self.layers.append(numpy.random.rand(netSpec[i-1], netSpec[i]) * .1)
-			
+	
 	def sigmoid(x):
 		return 1 / (1 + numpy.e ** -x) # This does not work...
 	
@@ -24,14 +25,25 @@ class NeuralNet:
 			a.append(NeuralNet.sigmoid(i))
 		return a[-1]
 	
+	def average(self, val):
+		avg = 0
+		for i in val:
+			avg += i
+		return avg / len(val)
+	
+	def export(self, fn):
+		numpy.save(fn, self.layers)
+	
 	def train(self, data, alpha, it=3):
-		for iterateions in range(it):
+		for iterate in range(it):
 			for ds, y in data:
 				a = list([ds])
 				# Forward Feed
 				for w in self.layers:
 					i = numpy.dot(a[-1], w)
 					a.append(NeuralNet.sigmoid(i))
+				self.runQuality.append((iterate, self.average(abs(y - a[-1]))))
+				#print(self.runQuality[-1])
 				# Back Propagate
 				deltas = list()
 				init = list()
@@ -44,16 +56,11 @@ class NeuralNet:
 					injk = numpy.dot(a[k-1], self.layers[k-1])
 					init = list()
 					for j in range(self.layers[k-1].shape[1]):
-						#row = self.layers[k-1].T[i]
-						#injk = numpy.dot(a[k-1], row)
 						init.append(NeuralNet.dsigmoid(injk[j]) * v[j])
 					deltas.append(numpy.array(init))
 				deltas.reverse()
 				for k in range(len(self.layers)-1, -1, -1):
 					for j in range(self.layers[k].shape[1]):
-						#print(self.layers[k].T[j].shape)
-					#	print(str(a[k].shape) + " " + str(k))
-						#print(a[k].shape)
 						update = self.layers[k].T[j] + alpha * a[k] * deltas[k][j]
 						self.layers[k].T[j] = update
 				
