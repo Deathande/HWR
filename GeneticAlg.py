@@ -1,6 +1,7 @@
 import NeuralNet
 import IO
 import numpy as np
+import datetime
 
 def __cross(l1, l2):
 	pivot = np.random.randint(0, np.minimum(len(l1), len(l2)))
@@ -78,21 +79,26 @@ def sortB(params, nets, data):
 	length = len(params)
 	for i in range(length):
 		for j in range(length - i - 1):
-			if reate(nets[j], datas) > function(nets[j+1], datas):
+			if rate(nets[j], data) > rate(nets[j+1], data):
 				tempp = params[j]
 				tempnet = nets[j]
 				params[j] = params[j+1]
 				nets[j] = nets[j+1]
 				params[j+1] = tempp
 				nets[j+1] = tempnet
-	return params
+	return params, nets
 
 def run(d1, d2, it, ss, threads=0):
 	inputs = 64
 	outputs = 10
+	print("Running genetic algorithm for Neural Network with")
+	print("genetic iterations: " + str(it))
+	print("samples: " + str(ss))
+	print("inputs: " + str(inputs))
+	print("outputs: " + str(outputs))
 	params = list()
 	nets = list()
-	print(it)
+	dataPoints = list()
 	for i in range(ss):
 		a = np.random.rand()
 		nhl = np.random.randint(0, 5)
@@ -107,11 +113,16 @@ def run(d1, d2, it, ss, threads=0):
 			nets.append(NeuralNet.NeuralNet(inputs, outputs, i[1]))
 		for i in range(len(nets)):
 			nets[i].train(d1, params[i][0], params[i][2])
-		params = sortB(params, nets, d2)
+		params, nets = sortB(params, nets, d2)
+		dataPoints.append(rate(nets[0], d2))
 		params = __mix(params)
 		__mutate(params)
 		for i in range(ss):
 			__fix(params[i])
+	data = np.array(dataPoints)
+	time = datetime.datetime.now()
+	fn = str(time.day) + "-" + str(time.month) + "-" + str(time.day) + "-" + str(time.hour) + ":" + str(time.minute) + ":" + str(time.second)
+	np.save(fn, data)
 	
 if __name__ == '__main__':
 	train = IO.getData('rec/optdigits_train.txt', True)
