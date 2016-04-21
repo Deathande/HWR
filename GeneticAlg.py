@@ -2,9 +2,10 @@ import NeuralNet
 import IO
 import numpy as np
 import datetime
+from multiprocessing import Pool
 
 def __cross(l1, l2):
-	pivot = np.random.randint(0, np.minimum(len(l1), len(l2)))
+	pivot = np.random.randint(1, np.minimum(len(l1), len(l2)))
 	ltemp1 = l1[pivot:]
 	ltemp2 = l2[pivot:]
 	l1 = l1[0:pivot]
@@ -15,21 +16,18 @@ def __cross(l1, l2):
 
 def __mix(l, x=0):
 	newlist = list()
+	half = int(len(l) / 2)
+	clist = l[0:half]
 	olength = len(l)
-	hl = list()
-	"""
-	if (x == 0):
-		for val in l:
-			hl.append(val[1])
-		__mix(hl, 1)
-		return 
-		"""
-	for i in range(int(len(l) / 2)):
-		index = np.random.randint(0, len(l))
-		l1 = l.pop(index)
-		index = np.random.randint(0, len(l))
-		l2 = l.pop(index)
-		newlist.extend(__cross(l1, l2))
+	while len(clist) > 1:
+		print(np.floor(len(l) / 2))
+		index = np.random.randint(0, len(clist))
+		l1 = clist.pop(index)
+		index = np.random.randint(0, len(clist))
+		l2 = clist.pop(index)
+		crossed = __cross(l1, l2)
+		newlist.extend([crossed[0], crossed[1]])
+	newlist.extend(l[len(newlist):])
 	return newlist
 
 def __fix(l):
@@ -46,13 +44,23 @@ def __fix(l):
 			l[1].insert(index, np.random.randint(3, 85))
 
 def __mutate(l):
-	for item in l:
-		i = np.random.randint(0, len(item))
-		if not isinstance(item[i], list):
-			if np.random.randint(0,1) == 1:
-				item[i] - item[i] * np.random.rand()
+	pct = np.random.rand()
+	num = int(np.round(len(l) * pct))
+	for x in range(num):
+		i = np.random.randint(0, len(l))
+		j = np.random.randint(0, len(l[i]))
+		pct2 = np.random.random()
+		val = l[i][j] * pct2
+		if np.random.randint(0,1) == 1:
+			if isinstance(l[i][j], float):
+				l[i][j] += val
 			else:
-				item[i] + item[i] * np.random.rand()
+				l[i][j] += int(np.round(val))
+		else:
+			if isinstance(l[i][j], float):
+				l[i][j]-= val
+			else:
+				l[i][j] -= int(np.round(val))
 
 def __getHighest(data, num=1):
 	m = 0
@@ -63,7 +71,7 @@ def __getHighest(data, num=1):
 			index = i
 
 def average(val):
-	avg = 0
+	
 	for i in val:
 		avg += i
 	return avg / len(val)
