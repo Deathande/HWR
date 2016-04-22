@@ -125,6 +125,10 @@ def run(d1, d2, it, ss, threads=0):
 	np.save(fn, data)
 	
 if __name__ == '__main__':
-	train = IO.getData('rec/optdigits_train.txt', True)
-	test = IO.getData('rec/optdigits_test.txt', True)
-	run(train, test, 10, 10)
+	import traceback
+	try:
+		train = IO.getData('rec/optdigits_train.txt', True)
+		test = IO.getData('rec/optdigits_test.txt', True)
+		run(train, test, 2, 2)
+	except Exception:
+		print(traceback.format_exc())
