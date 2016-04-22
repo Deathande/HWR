@@ -22,6 +22,7 @@ class NeuralNet:
 	def run(self, data):
 		a = list([data])
 		for w in self.layers:
+			a[-1] = numpy.append(a[-1], 1)
 			i = numpy.dot(a[-1], w)
 			a.append(NeuralNet.sigmoid(i))
 		return a[-1]
@@ -37,6 +38,7 @@ class NeuralNet:
 	
 	def train(self, data, alpha, it=3):
 		for iterate in range(it):
+			avgError = list()
 			for ds, y in data:
 				a = list([ds])
 				# Forward Feed
@@ -44,7 +46,7 @@ class NeuralNet:
 					a[-1] = numpy.append(a[-1], 1)
 					i = numpy.dot(a[-1], w)
 					a.append(NeuralNet.sigmoid(i))
-				#self.runQuality.append((iterate, self.average(abs(y - a[-1]))))
+				avgError.append(self.average(abs(y - a[-1])))
 				#print(self.runQuality[-1])
 				# Back Propagate
 				deltas = list()
@@ -65,6 +67,7 @@ class NeuralNet:
 					for j in range(self.layers[k].shape[1]):
 						update = self.layers[k].T[j] + alpha * a[k] * deltas[k][j]
 						self.layers[k].T[j] = update
+			self.runQuality.append(self.average(avgError))
 				
 if __name__ == '__main__':
 	nn = NeuralNet([6, 4, 5])

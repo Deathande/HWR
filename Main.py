@@ -4,8 +4,8 @@ import random
 import NeuralNet
 import sys
 import pdb
-import BubbleSort
 import IO
+import matplotlib.pyplot as plt
 
 def vectorize(x):
 	vect = np.zeros(10)
@@ -61,13 +61,13 @@ if __name__ == '__main__':
 	GeneticAlg.run(training, testing, 10, 10)
 	"""
 	training = IO.getData('rec/optdigits_train.txt', True)
-	n = NeuralNet.NeuralNet(64, 10, [20])
-	for i in n.layers:
-		print(i.shape)
-	n.train(training, .01, 80)
-	"""
+	n = NeuralNet.NeuralNet(64, 10)
+	n.train(training, .01, 600)
 	test = getData('rec/optdigits_test.txt', True)
 	print(rate(n, test))
+	plt.plot(n.runQuality)
+	plt.show()
+	"""
 	for data, y in test:
 		out = n.run(data)
 		for i in range(len(out)):
@@ -78,4 +78,4 @@ if __name__ == '__main__':
 		print("actual: " + str(getHighest(y)))
 		print("Average difference: " + str(average(abs(y - out))))
 		print()
-		"""
+	"""
