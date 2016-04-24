@@ -1,11 +1,11 @@
 import csv
-import numpy as np
-import random
-import NeuralNet
 import sys
+import NeuralNet
 import pdb
 import IO
 import matplotlib.pyplot as plt
+import datetime
+import numpy as np
 
 def vectorize(x):
 	vect = np.zeros(10)
@@ -51,31 +51,51 @@ def rate(nn, datas):
 	averages = list()
 	for data, y in datas:
 		out = nn.run(data)
-		averages.append(average(abs(y - out)))
+		averages.append(abs(y[getHighest(out)] - out[getHighest(out)]))
 	return average(averages)
 
 if __name__ == '__main__':
-	"""
-	training = getData('rec/optdigits_train.txt', True)
-	testing = getData('rec/optdigits_test.txt', True)
-	GeneticAlg.run(training, testing, 10, 10)
-	"""
+	# Parse the command line parameters
+	load = False
+	iterations = 50
+	sys.argv.pop(0)
+	for i in range(len(sys.argv)):
+		if sys.argv[i] == '-nn':
+			sys.argv.pop(i)
+			load = True
+			fn = sys.argv[i]
+		else:
+			iterations = int(sys.argv.pop(i))
+	
+	print("Running Neural network with parameters:")
+	print("iterations over training data: " + str(iterations))
+	print("inputs: 64")
+	print("outputs: 10")
 	training = IO.getData('rec/optdigits_train.txt', True)
-	n = NeuralNet.NeuralNet(64, 10)
-	n.train(training, .01, 600)
+	n = NeuralNet.NeuralNet(64, 10, [20])
+	n.train(training, .01, iterations)
+	n.export("data/nets/" + str(datetime.datetime.now()))
 	test = getData('rec/optdigits_test.txt', True)
 	print(rate(n, test))
 	plt.plot(n.runQuality)
-	plt.show()
-	"""
+	plt.savefig("data/graphs/"+ str(iterations) + " " +str(datetime.datetime.now()) + ".jpg")
+	avgErr = list()
+	dat = ''
 	for data, y in test:
 		out = n.run(data)
+		avgErr.append(abs(y[getHighest(out)] - out[getHighest(out)]))
 		for i in range(len(out)):
 			sys.stdout.write(str(i) + ": ")
+			dat += str(i) + ": "
 			sys.stdout.write(str(out[i]))
+			dat += str(out[i]) + "\n"
 			print()
 		print("found:" + str(getHighest(out)))
 		print("actual: " + str(getHighest(y)))
-		print("Average difference: " + str(average(abs(y - out))))
+		print("difference: " + str(avgErr[-1]))
 		print()
-	"""
+		dat += "found: " + str(getHighest(out)) + "\n"
+		dat += "actual: " + str(getHighest(y)) + "\n"
+		dat += "difference: " + str(avgErr[-1]) + "\n"
+	log = open("data/raw/" + str(datetime.datetime.now()) + ".out", "w")
+	log.write(dat)

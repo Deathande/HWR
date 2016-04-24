@@ -8,7 +8,6 @@ class NeuralNet:
 		self.layers = list()
 		netSpec.append(ol)
 		netSpec.insert(0, inl)
-		print(range(1, len(netSpec)))
 		for i in range(1, len(netSpec)):
 			self.layers.append(numpy.random.rand(netSpec[i-1]+1, netSpec[i]) * .1)
 	
@@ -36,6 +35,21 @@ class NeuralNet:
 	def export(self, fn):
 		numpy.save(fn, self.layers)
 	
+	def load(self, nn):
+		if isinstance(nn, string):
+			self.layers = numpy.load(nn)
+		else:
+			self.layers = nn
+	
+	def getHighest(data):
+		m = 0
+		index = 0
+		for i in range(len(data)):
+			if data[i] > m:
+				m = data[i]
+				index = i
+		return index
+	
 	def train(self, data, alpha, it=3):
 		for iterate in range(it):
 			avgError = list()
@@ -46,7 +60,7 @@ class NeuralNet:
 					a[-1] = numpy.append(a[-1], 1)
 					i = numpy.dot(a[-1], w)
 					a.append(NeuralNet.sigmoid(i))
-				avgError.append(self.average(abs(y - a[-1])))
+				avgError.append(abs(y[NeuralNet.getHighest(a[-1])] - a[-1][NeuralNet.getHighest(a[-1])]))
 				#print(self.runQuality[-1])
 				# Back Propagate
 				deltas = list()
@@ -70,5 +84,4 @@ class NeuralNet:
 			self.runQuality.append(self.average(avgError))
 				
 if __name__ == '__main__':
-	nn = NeuralNet([6, 4, 5])
-	print(nn.layers[1].shape)
+	pass
