@@ -56,9 +56,11 @@ def rate(nn, datas):
 
 if __name__ == '__main__':
 	# Parse the command line parameters
-	load = False
+	hl = []
+	alpha = .005
 	iterations = 50
-	sys.argv.pop(0)
+	hls = ""
+	"""
 	for i in range(len(sys.argv)):
 		if sys.argv[i] == '-nn':
 			sys.argv.pop(i)
@@ -66,24 +68,35 @@ if __name__ == '__main__':
 			fn = sys.argv[i]
 		else:
 			iterations = int(sys.argv.pop(i))
+	"""
+	sys.argv.pop(0)
+	iterations = int(sys.argv.pop(0))
+	alpha = float(sys.argv.pop(0))
+	for arg in sys.argv:
+		hl.append(int(arg))
 	
 	print("Running Neural network with parameters:")
 	print("iterations over training data: " + str(iterations))
 	print("inputs: 64")
 	print("outputs: 10")
+	print("alpha: " + str(alpha))
+	sys.stdout.write("Hidden: ")
+	hls = str(hl) 
+	info = str(iterations)+ "_" + str(alpha) + "_" + hls
+	print(hls)
 	training = IO.getData('rec/optdigits_train.txt', True)
-	n = NeuralNet.NeuralNet(64, 10, [20])
-	n.train(training, .01, iterations)
-	n.export("data/nets/" + str(datetime.datetime.now()))
+	n = NeuralNet.NeuralNet(64, 10, hl)
+	n.train(training, alpha, iterations)
+	n.export("data/nets/" + info)
 	test = getData('rec/optdigits_test.txt', True)
-	print(rate(n, test))
-	plt.plot(n.runQuality)
-	plt.savefig("data/graphs/"+ str(iterations) + " " +str(datetime.datetime.now()) + ".jpg")
-	avgErr = list()
+	#print(rate(n, test))
+	plt.plot(n.num_correct)
+	plt.savefig("data/graphs/"+ info + ".jpg")
+	correct = 0
 	dat = ''
 	for data, y in test:
 		out = n.run(data)
-		avgErr.append(abs(y[getHighest(out)] - out[getHighest(out)]))
+		correct += y[NeuralNet.NeuralNet.getHighest(out)]
 		for i in range(len(out)):
 			sys.stdout.write(str(i) + ": ")
 			dat += str(i) + ": "
@@ -92,10 +105,10 @@ if __name__ == '__main__':
 			print()
 		print("found:" + str(getHighest(out)))
 		print("actual: " + str(getHighest(y)))
-		print("difference: " + str(avgErr[-1]))
 		print()
 		dat += "found: " + str(getHighest(out)) + "\n"
 		dat += "actual: " + str(getHighest(y)) + "\n"
-		dat += "difference: " + str(avgErr[-1]) + "\n"
-	log = open("data/raw/" + str(datetime.datetime.now()) + ".out", "w")
+	print("Percent correct: " + str(correct / len(test)))
+	dat += "Percent correct: " + str(correct / len(test)) + "\n"
+	log = open("data/raw/" + info + ".out", "w")
 	log.write(dat)
