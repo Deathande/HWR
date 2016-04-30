@@ -6,12 +6,12 @@ import matplotlib as plt
 class NeuralNet:
 	def __init__(self,inl, ol, netSpec=[]):
 		self.runQuality = list()
-		numpy.random.seed(1)
+		#numpy.random.seed(1)
 		self.layers = list()
 		netSpec.append(ol)
 		netSpec.insert(0, inl)
 		for i in range(1, len(netSpec)):
-			self.layers.append(numpy.random.rand(netSpec[i-1]+1, netSpec[i]) * .1)
+			self.layers.append(numpy.array(numpy.random.rand(netSpec[i-1]+1, netSpec[i]), dtype=numpy.float64) * .1)
 	
 	def sigmoid(x):
 		return 1 / (1 + numpy.e ** -x)
@@ -74,15 +74,21 @@ class NeuralNet:
 				deltas = [dk]
 				for i in range(len(self.layers)-2, -1, -1):
 					dk = NeuralNet.dsigmoid(inputs[i])
-					selection = self.layers[i+1].T[:, 1:self.layers[i+1].shape[0]]
+					selection = self.layers[i+1].T[:, 1:]#self.layers[i+1].shape[0]]
 					dk = dk * numpy.dot(deltas[-1], selection)
 					deltas.append(dk)
 				#print(len(deltas))
 				deltas.reverse()
 				for k in range(len(self.layers)):
 					for j in range(self.layers[k].shape[1]):
-						self.layers[k][:,j] = self.layers[k][:,j] + alpha * a[k] * deltas[k][j]
+						self.layers[k][:,j] = self.layers[k][:,j] + (alpha * a[k] * deltas[k][j])
 				x += 1
+				"""
+				print("1:")
+				print(self.layers[0][0][0])
+				print("2:")
+				print(self.layers[1][2][2])
+				"""
 				sys.stdout.write(str(round(x / pct * 100)) + "%      \r")
 
 			self.num_correct.append(correct / len(data))
